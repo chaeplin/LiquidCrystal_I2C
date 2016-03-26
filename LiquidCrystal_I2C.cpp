@@ -21,8 +21,11 @@ inline void LiquidCrystal_I2C::write(uint8_t value) {
 }
 
 #endif
-#include "Wire.h"
-
+#if defined(__AVR_ATtiny85__) || (__AVR_ATtiny2313__)
+#include "TinyWireM.h"      // include this if ATtiny85 or ATtiny2313
+#else 
+#include <Wire.h>           // original lib include
+#endif
 
 
 // When the display powers up, it is configured as follows:
@@ -58,7 +61,11 @@ void LiquidCrystal_I2C::init(){
 
 void LiquidCrystal_I2C::init_priv()
 {
+#if defined (__AVR_ATtiny85__) || (__AVR_ATtiny2313__)
+	TinyWireM.begin();             // initialize I2C lib
+#else   // original call
 	Wire.begin();
+#endif
 	_displayfunction = LCD_4BITMODE | LCD_1LINE | LCD_5x8DOTS;
 	begin(_cols, _rows);  
 }
@@ -259,9 +266,16 @@ void LiquidCrystal_I2C::write4bits(uint8_t value) {
 }
 
 void LiquidCrystal_I2C::expanderWrite(uint8_t _data){                                        
+#if defined(__AVR_ATtiny85__) || (__AVR_ATtiny2313__)   // Replaced Wire calls with ATtiny TWI calls
+	TinyWireM.beginTransmission(_Addr); 
+	TinyWireM.send(((int)(_data) | _backlightval)); 
+	//printIIC((int)(_data) | _backlightval);
+	TinyWireM.endTransmission();
+#else  // original lib function
 	Wire.beginTransmission(_Addr);
 	printIIC((int)(_data) | _backlightval);
 	Wire.endTransmission();   
+#endif
 }
 
 void LiquidCrystal_I2C::pulseEnable(uint8_t _data){
