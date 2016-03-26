@@ -48,9 +48,15 @@
 #define LCD_BACKLIGHT 0x08
 #define LCD_NOBACKLIGHT 0x00
 
+#if defined(ARDUINO_ARCH_NRF51822)
+#define En 4  // Enable bit
+#define Rw 2  // Read/Write bit
+#define Rs 1  // Register select bit
+#else
 #define En B00000100  // Enable bit
 #define Rw B00000010  // Read/Write bit
 #define Rs B00000001  // Register select bit
+#endif
 
 class LiquidCrystal_I2C : public Print {
 public:
